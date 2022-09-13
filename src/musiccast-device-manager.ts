@@ -115,10 +115,12 @@ export class MusiccastDeviceManager {
 
     public async createDeviceFromIp(ip: string) {
         let mcDevice = await MusiccastDevice.fromIp(ip, (zone, topic, payload) => this.deviceUpdated(zone, topic, payload));
-        if (mcDevice)
+        if (mcDevice) {
+            this.log.debug("Add device {id} from IP {ip}", mcDevice.device_id, ip);
             this._mcDevices[mcDevice.device_id] = mcDevice;
-        else
+        } else {
             this.log.error("cannot create musiccast device for ip '{ip}'", ip);
+        }
     }
 
     private async pollDeviceStatus(): Promise<void> {
