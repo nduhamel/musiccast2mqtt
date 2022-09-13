@@ -12,6 +12,8 @@ export class MusiccastToMqtt implements IDeviceUpdatedListener {
 
     private readonly log = StaticLogger.CreateLoggerForSource('Musiccast2mqtt');
     private readonly mqtt_uri: string;
+    private readonly mqtt_username: string;
+    private readonly mqtt_password: string;
     private readonly mqtt_prefix: string;
     private readonly mqtt_insecure: boolean;
     private readonly mqtt_retain: boolean;
@@ -23,6 +25,8 @@ export class MusiccastToMqtt implements IDeviceUpdatedListener {
     constructor() {
         let config = ConfigLoader.Config()
         this.mqtt_uri = config.brokerUrl;
+        this.mqtt_username = config.brokerUsername;
+        this.mqtt_password = config.brokerPassword;
         this.mqtt_prefix = config.prefix;
         this.mqtt_insecure = config.insecure;
         this.mqtt_retain = config.mqttRetain;
@@ -48,9 +52,11 @@ export class MusiccastToMqtt implements IDeviceUpdatedListener {
     }
 
     private connect(): void {
-        this.log.info('mqtt trying to connect {mqtt_url}', this.mqtt_uri);
+        this.log.info('mqtt trying to connect {mqtt_url}, with user: {mqtt_username}', this.mqtt_uri, this.mqtt_username);
 
         this.mqttClient = mqtt.connect(this.mqtt_uri, {
+            username: this.mqtt_username,
+            password: this.mqtt_password,
             clientId: this.mqtt_prefix + '_' + Math.random().toString(16).substr(2, 8),
             will: { topic: this.mqtt_prefix + '/connected', payload: '0', qos: 0, retain: this.mqtt_retain },
             rejectUnauthorized: !this.mqtt_insecure

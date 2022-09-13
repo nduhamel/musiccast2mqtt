@@ -5,6 +5,8 @@ import { StaticLogger } from './static-logger';
 
 export interface Config {
     brokerUrl: string;
+    brokerUsername?: string;
+    brokerPassword?: string;
     prefix: string;
     log: string;
     pollingInterval: number;
@@ -73,6 +75,8 @@ export class ConfigLoader {
             .describe('udp-port', 'port for listening on udp events on status change')
             .choices('log', ['warning', 'information', 'debug', 'verbose'])
             .string("broker-url")
+            .string("broker-username")
+            .string("broker-password")
             .boolean('mqtt-retain')
             .number('polling-interval')
             .choices('friendlynames', ['name', 'id'])
