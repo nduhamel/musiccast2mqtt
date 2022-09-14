@@ -24,5 +24,11 @@ export enum MusiccastCommands {
   ToggleShuffle = 'toggleshuffle',
   Repeat = 'repeat',
   ToggleRepeat = 'togglerepeat',
-  PlayPosition = 'playposition'
+  PlayPosition = 'playposition',
+  RecallPreset = 'recallpreset'
+}
+
+export enum MusiccastSystemCommands {
+  PartyMode = 'partymode',
+  SpeakerPattern = 'speakerpattern',
 }

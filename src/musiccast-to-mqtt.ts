@@ -4,7 +4,7 @@ import mqtt, { MqttClient, IClientPublishOptions } from 'mqtt';
 import { ConfigLoader } from './config'
 import { MusiccastEventListener } from './musiccast-event-listener';
 import { IDeviceUpdatedListener, MusiccastDeviceManager } from './musiccast-device-manager';
-import { MusiccastCommands } from './musiccast-commands';
+import { MusiccastCommands, MusiccastSystemCommands } from './musiccast-commands';
 import { MusiccastCommandMapping } from './musiccast-command-mapping';
 
 
@@ -103,6 +103,18 @@ export class MusiccastToMqtt implements IDeviceUpdatedListener {
                             case 'discover':
                                 if (payload === 1) {
                                     this.discover();
+                                }
+                                break;
+                            // listen to [mqtt_prefix]/set/system/[device_id]/[command]
+                            case 'system':
+                                const device_id: string | undefined = parts[2]
+                                const command: string | undefined = parts[3]
+                                let mcCommand: MusiccastSystemCommands | undefined;
+                                if (command !== undefined && Object.values(MusiccastSystemCommands).some(v => v === command.toLowerCase())) {
+                                    mcCommand = command.toLowerCase() as MusiccastSystemCommands;
+                                }
+                                if (mcCommand) {
+                                    MusiccastCommandMapping.ExecuteCommandSystem(device_id, mcCommand, payload);
                                 }
                                 break;
                             default:

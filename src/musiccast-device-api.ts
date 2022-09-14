@@ -502,6 +502,21 @@ export module McDeviceApi {
         return SendGetToDevice(ip, command);
     }
 
+    export async function setPartyMode(ip: string, state) {
+        let on;
+        if (state === '1' || state === true || state === 1 || state === 'true') {
+            on = 1;
+        }
+        else { on = 0; }
+        let command = '/system/setPartyMode?enable=' + (on ? 'true' : 'false');
+        return SendGetToDevice(ip, command);
+    }
+
+    export async function setSpeakerPattern(ip: string, mode) {
+        let command = '/system/setSpeakerPattern?num=' + mode;
+        return SendGetToDevice(ip, command);
+    }
+
     //-----------  advanced ------------
 
     export async function setLinkControl(ip: string, control, zone) {

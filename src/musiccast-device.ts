@@ -1,6 +1,6 @@
 import { MusiccastEventListener } from './musiccast-event-listener';
 import { StaticLogger } from './static-logger';
-import { McDistributionInfo, McFeatures, McZoneId, McStereoPairInfo, McNetPlayInfo, McTunerPlayInfo, McCdPlayInfo, McEvent, McInputId, McSoundProgram } from './musiccast-types';
+import { McDistributionInfo, McFeatures, McFuncStatus, McZoneId, McStereoPairInfo, McNetPlayInfo, McTunerPlayInfo, McCdPlayInfo, McEvent, McInputId, McSoundProgram } from './musiccast-types';
 import { ConfigLoader } from './config'
 import { MusiccastDeviceManager } from './musiccast-device-manager';
 import { McDeviceApi } from './musiccast-device-api';
@@ -53,6 +53,7 @@ export class MusiccastDevice {
 
 
     private _features: McFeatures;
+    private _funcStatus: McFuncStatus;
     private _stereoPairInfos: McStereoPairInfo;
     private _distributionInfos: McDistributionInfo;
     private _netPlayInfo: McNetPlayInfo;
@@ -240,6 +241,16 @@ export class MusiccastDevice {
         }
     }
 
+    private async updateFuncStatus(): Promise<void> {
+        try {
+            this._funcStatus = await McDeviceApi.getFuncStatus(this.ip);
+            this.log.debug("{device_id} FuncStatus: {funcstatus}", this.device_id, JSON.stringify(this._funcStatus));
+            this.zoneUpdated(this.zones[McZoneId.Main], `debug/funcstatus`, this._funcStatus);
+        } catch (error) {
+            this.log.error("{device_id}: Error update FuncStatus. Error: {error}", this.id, error)
+        }
+    };
+
     private async updateFeatures(): Promise<void> {
         try {
             this._features = await McDeviceApi.getFeatures(this.ip);
@@ -331,6 +342,11 @@ export class MusiccastDevice {
         if ('system' in event) {
             if (event.system.stereo_pair_info_updated) {
                 this.updateStereoPairInfo().then(() => this.publishChangedStatus());
+            }
+            if (event.system.func_status_updated) {
+                // this.updateStereoPairInfo().then(() => this.publishChangedStatus());
+                // TODO publish update
+                this.updateFuncStatus()
             }
         }
         if ('tuner' in event) {

@@ -25,6 +25,18 @@ export interface McFeatures {
     zone: McZoneFeatures[];
 }
 
+export interface McFuncStatus {
+    // Variables depends of the device and the API version
+    // so all member are optionnal
+    headphone?: boolean;
+    hdmi_out_1?: boolean;
+    hdmi_out_2?: boolean;
+    hdmi_out_3?: boolean;
+    speaker_pattern?: number;
+    party_mode?: boolean;
+    hdmi_standby_through?: string;
+}
+
 export interface McRangeStep {
     /** Returns an ID*/
     id: string;

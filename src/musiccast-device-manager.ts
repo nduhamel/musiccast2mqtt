@@ -71,6 +71,11 @@ export class MusiccastDeviceManager {
         return device;
     }
 
+    public getDeviceById(id: string): MusiccastDevice | undefined  {
+        let device = this._mcDevices[id];
+        return device;
+    }
+
     public getZoneById(id: string): MusiccastZone {
         id = id.trim();
         let zone: MusiccastZone;
