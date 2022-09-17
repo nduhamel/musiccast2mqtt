@@ -7,7 +7,7 @@ import { MusiccastZone } from "./musiccast-zone";
 
 
 export interface IDeviceUpdatedListener {
-    onDeviceUpdated(zoneId: string, topic: string, payload: any): void;
+    onDeviceUpdated(zoneId: string, topic: string, payload: any, isDevice?: boolean): void;
 }
 
 
@@ -124,7 +124,7 @@ export class MusiccastDeviceManager {
 
 
     public async createDeviceFromIp(ip: string) {
-        let mcDevice = await MusiccastDevice.fromIp(ip, (zone, topic, payload) => this.deviceUpdated(zone, topic, payload));
+        let mcDevice = await MusiccastDevice.fromIp(ip, (zone, topic, payload, isDevice) => this.deviceUpdated(zone, topic, payload, isDevice));
         if (mcDevice) {
             this.log.debug("Add device {id} from IP {ip}", mcDevice.device_id, ip);
             this._mcDevices[mcDevice.device_id] = mcDevice;
@@ -147,13 +147,13 @@ export class MusiccastDeviceManager {
         this.pollingTimeout = setTimeout(() => this.pollDeviceStatus(), this.pollingInterval);
     }
 
-    public deviceUpdated(zone: MusiccastZone, topic: string, payload: any) {
-        this.publishUpdatedDevice(zone.id, topic, payload);
+    public deviceUpdated(zone: MusiccastZone|MusiccastDevice, topic: string, payload: any, isDevice?: boolean) {
+        this.publishUpdatedDevice(zone.id, topic, payload, isDevice);
     }
 
-    private publishUpdatedDevice(zoneId: string, topic: string, payload: any) {
+    private publishUpdatedDevice(zoneId: string, topic: string, payload: any, isDevice?: boolean) {
         for (const subscriber of this.deviceUpdatedSubscriber) {
-            subscriber.onDeviceUpdated(zoneId, topic, payload);
+            subscriber.onDeviceUpdated(zoneId, topic, payload, isDevice);
         }
     }
 }

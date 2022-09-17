@@ -7,13 +7,13 @@ import { McDeviceApi } from './musiccast-device-api';
 import request from './request';
 import { MusiccastZone } from './musiccast-zone';
 
-interface updateZoneCallback { (zone: MusiccastZone, topic: string, payload: any): void }
+interface updateCallback { (zone: MusiccastZone | MusiccastDevice, topic: string, payload: any, isDevice?: boolean): void }
 
 export class MusiccastDevice {
 
     private readonly log = StaticLogger.CreateLoggerForSource('MusiccastDevice');
 
-    public static async fromIp(ip: string, publishZoneUpdate: updateZoneCallback): Promise<MusiccastDevice | undefined> {
+    public static async fromIp(ip: string, publishUpdate: updateCallback): Promise<MusiccastDevice | undefined> {
         let log = StaticLogger.CreateLoggerForSource('MusiccastDevice');
         let req = {
             method: 'GET',
@@ -25,7 +25,7 @@ export class MusiccastDevice {
         try {
             let response = await request.getAsync(req);
             if (response.body.response_code === 0) {
-                let device: MusiccastDevice = new MusiccastDevice(response.body.device_id, ip, response.body.model_name, publishZoneUpdate);
+                let device: MusiccastDevice = new MusiccastDevice(response.body.device_id, ip, response.body.model_name, publishUpdate);
                 return device;
             }
         }
@@ -35,7 +35,7 @@ export class MusiccastDevice {
         return undefined;
     }
 
-    private readonly publishZoneUpdate: updateZoneCallback;
+    private readonly publishUpdate: updateCallback;
 
     private readonly useFriendlyNames: boolean;
 
@@ -70,11 +70,11 @@ export class MusiccastDevice {
     public model: string;
 
 
-    constructor(device_id: string, ip: string, model: string, publishZoneUpdate: updateZoneCallback) {
+    constructor(device_id: string, ip: string, model: string, publishUpdate: updateCallback) {
         this.device_id = device_id;
         this.ip = ip;
         this.model = model;
-        this.publishZoneUpdate = publishZoneUpdate;
+        this.publishUpdate = publishUpdate;
 
         this.useFriendlyNames = ConfigLoader.Config().friendlynames === 'name';
 
@@ -245,7 +245,7 @@ export class MusiccastDevice {
         try {
             this._funcStatus = await McDeviceApi.getFuncStatus(this.ip);
             this.log.debug("{device_id} FuncStatus: {funcstatus}", this.device_id, JSON.stringify(this._funcStatus));
-            this.zoneUpdated(this.zones[McZoneId.Main], `debug/funcstatus`, this._funcStatus);
+            this.deviceUpdated(`debug/funcstatus`, this._funcStatus);
         } catch (error) {
             this.log.error("{device_id}: Error update FuncStatus. Error: {error}", this.id, error)
         }
@@ -370,7 +370,7 @@ export class MusiccastDevice {
                 this._cdPlayInfo.play_time = event.cd.play_time;
             }
         }
-        if ('dist' in event && event.dist.dist_info_updated) { 
+        if ('dist' in event && event.dist.dist_info_updated) {
             this.updateDistributionInfo().then(() => this.publishChangedStatus());
         }
         this.publishChangedStatus();
@@ -383,7 +383,12 @@ export class MusiccastDevice {
 
     private zoneUpdated(zone: MusiccastZone, topic: string, payload: any) {
         if (this._isInitalized)
-            this.publishZoneUpdate(zone, topic, payload);
+            this.publishUpdate(zone, topic, payload);
+    }
+
+    private deviceUpdated(topic: string, payload: any) {
+        if (this._isInitalized)
+            this.publishUpdate(this, topic, payload, true);
     }
 
 }

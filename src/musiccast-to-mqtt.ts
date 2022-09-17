@@ -47,8 +47,12 @@ export class MusiccastToMqtt implements IDeviceUpdatedListener {
         this.mqttClient?.end()
     }
 
-    public onDeviceUpdated(zoneId: string, topic: string, payload: any): void {
-        this.publish(`status/${zoneId}/${topic}`, payload, { retain: this.mqtt_retain, qos: 0 });
+    public onDeviceUpdated(zoneId: string, topic: string, payload: any, isDevice?: boolean): void {
+        if (typeof isDevice !== 'undefined' && isDevice ) {
+            this.publish(`device/status/${zoneId}/${topic}`, payload, { retain: this.mqtt_retain, qos: 0 });
+        } else {
+            this.publish(`status/${zoneId}/${topic}`, payload, { retain: this.mqtt_retain, qos: 0 });
+        }
     }
 
     private connect(): void {
