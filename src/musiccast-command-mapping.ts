@@ -1,13 +1,12 @@
 import { MusiccastCommands, MusiccastSystemCommands } from "./musiccast-commands";
 import { MusiccastGroupMananger } from './musiccast-group-manager';
-import { MusiccastDeviceManager } from './musiccast-device-manager';
 import { MusiccastZone } from "./musiccast-zone";
+import { MusiccastDevice } from "./musiccast-device";
 import { McDeviceApi } from "./musiccast-device-api";
 
 export class MusiccastCommandMapping {
 
-  static async ExecuteCommandSystem(id: string, command: MusiccastSystemCommands, payload: any): Promise<any> {
-      const device = MusiccastDeviceManager.getInstance().getDeviceById(id);
+  static async ExecuteCommandSystem(device: MusiccastDevice, command: MusiccastSystemCommands, payload: any): Promise<any> {
 
       switch (command) {
           case MusiccastSystemCommands.PartyMode:

@@ -71,6 +71,11 @@ export class MusiccastDeviceManager {
         return device;
     }
 
+    public getDeviceByName(name: string): MusiccastDevice {
+        let device = Object.values(this._mcDevices).find(d => d.name === name);
+        return device;
+    }
+
     public getDeviceById(id: string): MusiccastDevice | undefined  {
         let device = this._mcDevices[id];
         return device;

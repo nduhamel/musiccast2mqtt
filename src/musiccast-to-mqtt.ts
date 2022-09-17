@@ -105,16 +105,17 @@ export class MusiccastToMqtt implements IDeviceUpdatedListener {
                                     this.discover();
                                 }
                                 break;
-                            // listen to [mqtt_prefix]/set/system/[device_id]/[command]
+                            // listen to [mqtt_prefix]/set/system/[device_name]/[command]
                             case 'system':
-                                const device_id: string | undefined = parts[2]
+                                const device_name: string | undefined = parts[2]
+                                const device = this.deviceManager.getDeviceByName(device_name);
                                 const command: string | undefined = parts[3]
                                 let mcCommand: MusiccastSystemCommands | undefined;
                                 if (command !== undefined && Object.values(MusiccastSystemCommands).some(v => v === command.toLowerCase())) {
                                     mcCommand = command.toLowerCase() as MusiccastSystemCommands;
                                 }
                                 if (mcCommand) {
-                                    MusiccastCommandMapping.ExecuteCommandSystem(device_id, mcCommand, payload);
+                                    MusiccastCommandMapping.ExecuteCommandSystem(device, mcCommand, payload);
                                 }
                                 break;
                             default:

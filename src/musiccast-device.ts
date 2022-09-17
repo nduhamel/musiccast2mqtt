@@ -91,7 +91,7 @@ export class MusiccastDevice {
         if (this.hasCd)
             await this.updateCdPlayInfo();
         if (this.hasTuner)
-            await this.updateTunerPlayInfo();      
+            await this.updateTunerPlayInfo();
         for (const zone of this._features.zone) {
             await this.updateStatus(zone.id);
         }
@@ -179,7 +179,7 @@ export class MusiccastDevice {
             return false;
     }
 
-    /** 
+    /**
      * Returns the master device if isSlave is true, otherwise returns undefinied
      */
     public get master(): MusiccastDevice {
